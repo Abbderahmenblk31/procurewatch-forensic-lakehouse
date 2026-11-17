@@ -1,9 +1,11 @@
 # 🕵️‍♂️ ProcureWatch: Forensic Federal Procurement & Cartel Detection Lakehouse
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit%20Cloud-6366F1.svg?style=for-the-badge&logo=streamlit)](https://abbderahmenblk31-procurewatch-forensic-lake-dashboardapp-v7ykcb.streamlit.app/)
 [![Forensic Lakehouse CI](https://github.com/Abbderahmenblk31/procurewatch-forensic-lakehouse/actions/workflows/ci.yml/badge.svg)](https://github.com/Abbderahmenblk31/procurewatch-forensic-lakehouse/actions)
 [![Engine: DuckDB](https://img.shields.io/badge/Engine-DuckDB%20Forensic%20SQL-indigo.svg)](https://duckdb.org/)
 [![Data: 100% Real USASpending.gov](https://img.shields.io/badge/Data-US%20Treasury%20USASpending%20API-blue.svg)](https://api.usaspending.gov/)
-[![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-brightgreen.svg)](https://python.org)
+
+> 🔗 **Interactive Cloud Application:** [Launch ProcureWatch Live Dashboard](https://abbderahmenblk31-procurewatch-forensic-lake-dashboardapp-v7ykcb.streamlit.app/)
 
 An enterprise-grade **Forensic Data Engineering & Quantitative Audit Lakehouse** that ingests **100% genuine federal procurement contracts and awards** from the official **US Department of the Treasury (USASpending.gov API)**. 
 
