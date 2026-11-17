@@ -4,30 +4,33 @@
 [![Forensic Lakehouse CI](https://github.com/Abbderahmenblk31/procurewatch-forensic-lakehouse/actions/workflows/ci.yml/badge.svg)](https://github.com/Abbderahmenblk31/procurewatch-forensic-lakehouse/actions)
 [![Engine: DuckDB](https://img.shields.io/badge/Engine-DuckDB%20Forensic%20SQL-indigo.svg)](https://duckdb.org/)
 [![Data: 100% Real USASpending.gov](https://img.shields.io/badge/Data-US%20Treasury%20USASpending%20API-blue.svg)](https://api.usaspending.gov/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 > 🔗 **Interactive Cloud Application:** [Launch ProcureWatch Live Dashboard](https://abbderahmenblk31-procurewatch-forensic-lake-dashboardapp-v7ykcb.streamlit.app/)
 
-An enterprise-grade **Forensic Data Engineering & Quantitative Audit Lakehouse** that ingests **100% genuine federal procurement contracts and awards** from the official **US Department of the Treasury (USASpending.gov API)**. 
+An enterprise-grade **Forensic Data Engineering, Quantitative Audit & Prescriptive Enforcement Lakehouse** that ingests **100% genuine federal procurement contracts and awards** from the official **US Department of the Treasury (USASpending.gov API)**.
 
-The platform applies mathematical forensics and antitrust regulatory algorithms:
-1. **Benford's Law First-Digit Forensic Distribution Test** ($\chi^2$ Goodness-of-Fit and Mean Absolute Deviation) to detect fabricated invoices and manipulated bids.
-2. **Contract Splitting & Threshold Smurfing Detection** (identifying clusters of contracts positioned just below statutory simplified acquisition limits).
-3. **Herfindahl-Hirschman Index (HHI) Monopoly Risk Modeling** (screening federal agencies for uncompetitive supplier monopolies under US Department of Justice standards).
+The platform applies mathematical forensics, antitrust regulatory algorithms, and an **Automated Legal & Audit Enforcement Triage Engine**:
+1. **Benford's Law First-Digit Forensic Distribution Test** ($\chi^2 = 86.77$, $p < 0.0001$, $\text{MAD} = 3.51\%$) to detect anomalous transaction clustering.
+2. **Contract Splitting & Threshold Smurfing Detection** (identifying clusters in the $200k-$250k band under FAR simplified acquisition rules).
+3. **Herfindahl-Hirschman Index (HHI) Monopoly Risk Modeling** (screening federal agencies for uncompetitive vendor monopolies under US Department of Justice standards).
+4. **Prescriptive Legal & Audit Enforcement Matrix** that categorizes high-risk contractors into binding audit tiers (`Tier 1: Freeze Disbursements & Subpoena`, `Tier 2: Desk Audit`, `Tier 3: Monitor`).
 
 ---
 
 ## 📌 Executive Summary & Forensic Problem
 
-Public procurement fraud, bid-rigging cartels, and contract threshold circumvention cost taxpayers and corporations **hundreds of billions of dollars annually**. 
+Public procurement fraud, single-bidder cartels, and contract threshold circumvention cost taxpayers and governments **hundreds of billions of dollars annually**.
 
-Traditional internal audit departments rely on retrospective sample audits (inspecting 1% to 2% of contracts manually). **ProcureWatch** replaces manual sampling with an automated, 100% population forensic lakehouse:
-* **The Forensic Math:** Naturally occurring financial transactions adhere strictly to **Benford's Law** ($P(d) = \log_{10}(1 + 1/d)$). When human conspirators manipulate contract values or split projects, first-digit frequencies deviate significantly from mathematical expectations.
-* **The Regulatory Shield:** Under the **Federal Acquisition Regulation (FAR)**, simplified acquisition procedures allow awards up to **$250,000** (and **$10,000** for micro-purchases) with minimal competitive oversight. Corrupt contractors systematically split multi-million projects into repeated sub-$250k chunks to evade public competitive tenders.
+Traditional internal audit departments rely on retrospective sample audits (inspecting 1% to 2% of contracts manually months after disbursements). **ProcureWatch** replaces manual sampling with an automated, 100% population forensic lakehouse:
+* **The Forensic Math:** Naturally occurring financial transactions adhere strictly to **Benford's Law** ($P(d) = \log_{10}(1 + 1/d)$). Human conspirators who manipulate invoices or split awards trigger statistically significant deviations.
+* **The Regulatory Loophole:** Under the **Federal Acquisition Regulation (FAR)**, simplified acquisition procedures allow awards up to **$250,000** (and **$10,000** for micro-purchases) with minimal competitive oversight. Corrupt contractors systematically split multi-million projects into repeated sub-$250k awards to bypass public competitive tenders.
 * **The Antitrust Lens:** Measures market concentration using the **Herfindahl-Hirschman Index (HHI)** to flag agencies exhibiting dangerous vendor lock-in ($\text{HHI} > 2,500$).
+* **Prescriptive Action:** Automatically assigns binding audit directives based on an objective **Composite Fraud Risk Score (0-100)**.
 
 ---
 
-## 🏛️ System Architecture
+## 🏛️ Medallion Architecture & System Design
 
 ```text
          [Official US Department of the Treasury API (USASpending.gov)]
@@ -35,7 +38,7 @@ Traditional internal audit departments rely on retrospective sample audits (insp
                                          │
                                          ▼
   ┌────────────────────────────────────────────────────────────────────────┐
-  │                        INGESTION & BRONZE LAYER                        │
+  │                        BRONZE LAYER (RAW INGESTION)                    │
   │  • fetch_procurement_awards(): Multi-slice API ingestion               │
   │  • Captures Award ID, Vendor, Obligated Amount, Sub-Agency, Start Date │
   │  • Paging, backoff, and idempotent persistence to DuckDB Lakehouse     │
@@ -58,23 +61,59 @@ Traditional internal audit departments rely on retrospective sample audits (insp
   │  • mart_agency_vendor_concentration: Computes HHI Monopoly Scores      │
   └───────────────────────────────────┬────────────────────────────────────┘
                                       │
-             ┌────────────────────────┴────────────────────────┐
-             ▼                                                 ▼
-┌────────────────────────────────────────┐    ┌────────────────────────────────────────┐
-│      AUTOMATED REGRESSION TESTS        │    │    INTERACTIVE FORENSIC BI DASHBOARD   │
-│  • First-digit domain validity [1, 9]  │    │ • Streamlit + Plotly Dark              │
-│  • Benford theoretical sum (100.0%)    │    │ • Dual Benford Curve Comparison        │
-│  • HHI mathematical bounds [0, 10,000] │    │ • Smurfing & Single-Bidder Matrix      │
-└────────────────────────────────────────┘    └────────────────────────────────────────┘
+                                      ▼
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │       PRESCRIPTIVE DECISION INTELLIGENCE (LEGAL AUDIT TRIAGE)          │
+  │  • mart_prescriptive_fraud_triage:                                     │
+  │    - Composite Fraud Risk Score (0 - 100)                              │
+  │    - Threshold Evasion (45%) + Agency Capture (25%) + Scale (30%)      │
+  │    - Action: TIER 1 (FREEZE & SUBPOENA) / TIER 2 (DESK AUDIT)          │
+  └───────────────────────────────────┬────────────────────────────────────┘
+                                      │
+              ┌───────────────────────┴───────────────────────┐
+              ▼                                               ▼
+ ┌────────────────────────────────────────┐    ┌────────────────────────────────────────┐
+ │      AUTOMATED REGRESSION TESTS        │    │    INTERACTIVE FORENSIC BI DASHBOARD   │
+ │  • First-digit domain validity [1, 9]  │    │ • Streamlit + Plotly Dark              │
+ │  • Benford theoretical sum (100.0%)    │    │ • Dual Benford Curve Comparison        │
+ │  • HHI mathematical bounds [0, 10,000] │    │ • Smurfing & Split Contract Ledger     │
+ │  • Prescriptive Risk Bounds [0, 100]   │    │ • Automated Legal Enforcement Matrix   │
+ └────────────────────────────────────────┘    └────────────────────────────────────────┘
 ```
 
 ---
 
-## 📊 Live Forensic Findings (Sample from Actual Run)
+## 🧮 Prescriptive Fraud Risk Scoring Model
 
-Auditing 662 federal contracts totaling **$2.54 Trillion USD** across 21 federal agencies yielded these empirical forensic results:
+The prescriptive engine calculates a multi-dimensional **Composite Fraud Risk Score ($0 \le S_{\text{risk}} \le 100$)** for each contractor entity:
 
-### 1. Benford's Law Distribution Audit
+$$S_{\text{risk}} = S_{\text{split}} + S_{\text{hhi}} + S_{\text{exposure}} + S_{\text{freq}}$$
+
+Where:
+1. **Threshold Evasion Score ($0 \le S_{\text{split}} \le 45$):**
+   $$S_{\text{split}} = \min\left(45.0, \ (N_{\text{split}} \times 25.0) + \left(\frac{V_{\text{split}}}{\$250,000} \times 20.0\right)\right)$$
+   Directly measures awards strategically positioned in the $200k-$249.9k statutory avoidance corridor.
+2. **Agency Monopoly Capture ($0 \le S_{\text{hhi}} \le 25$):**
+   $$S_{\text{hhi}} = \min\left(25.0, \ \text{Share}_{\text{agency}}\% \times 0.5\right)$$
+   Measures the vendor's financial dominance over the awarding department's budget.
+3. **High-Value Exposure ($0 \le S_{\text{exposure}} \le 15$):**
+   $$S_{\text{exposure}} = \min\left(15.0, \ \frac{\text{Total Spend}}{\$10,000,000} \times 15.0\right)$$
+4. **Contract Frequency Factor ($0 \le S_{\text{freq}} \le 15$):**
+   $$S_{\text{freq}} = \min\left(15.0, \ N_{\text{awards}} \times 1.5\right)$$
+
+### Prescriptive Legal Enforcement Directives:
+| Risk Score | Prescriptive Action Directive | Enforcement Protocol |
+| :--- | :--- | :--- |
+| $\ge 60$ | `🚨 TIER 1: FREEZE DISBURSEMENTS & SUBPOENA` | Immediate payment hold. Issue Inspector General (OIG) subpoena for sub-contractor ledgers and billings. |
+| $40 - 59$ | `⚠️ TIER 2: FORENSIC DESK AUDIT & CONTRACT SAMPLING` | Unannounced deliverable verification and independent pricing benchmarking. |
+| $20 - 39$ | `🔎 TIER 3: ENHANCED CONTINUOUS MONITORING` | Automated red-flag triggers attached to next 5 purchase orders / modifications. |
+| $< 20$ | `✅ TIER 4: ROUTINE RECONCILIATION` | Normal statutory disbursement and standard annual closeout. |
+
+---
+
+## 📊 Live Forensic Findings & Enforcement Scorecards
+
+### 1. Benford's Law First-Digit Distribution Audit
 ```text
 ================================================================================
 📊 BENFORD'S LAW FIRST-DIGIT DISTRIBUTION AUDIT TABLE
@@ -93,19 +132,20 @@ Auditing 662 federal contracts totaling **$2.54 Trillion USD** across 21 federal
 Chi-Square Goodness-of-Fit Statistic: 86.77 (p-value: 0.0000)
 Mean Absolute Deviation (MAD): 3.51%
 ```
-*Forensic Finding: Digit `1` exhibits a severe anomalous deviation (+12.65%), reflecting high clustering around $10k, $100k, and $1M threshold ceilings.*
 
-### 2. Agency Supplier Monopoly Concentration (HHI Scorecard)
+### 2. Prescriptive Fraud Triage Output (Live Sample)
 ```text
-================================================================================
-🏛️ TOP FEDERAL AGENCIES BY PROCUREMENT SPEND & SUPPLIER CONCENTRATION (HHI)
-================================================================================
-Agency                                Contracts  Vendors  Spend ($B)  HHI Score  Top Contractor      Top Share  DOJ Competitiveness
-Department of Defense                       440      141    $1,663.4      1,101  LOCKHEED MARTIN         27.1%  COMPETITIVE
-Department of Energy                         47       45      $667.4        472  LOCKHEED MARTIN         10.3%  COMPETITIVE
-NASA                                         45       27      $117.9      1,622  THE BOEING COMPANY      31.7%  MODERATELY CONCENTRATED
-Health and Human Services                    44       25       $28.8      1,784  MAXIMUS FEDERAL         30.7%  MODERATELY CONCENTRATED
-Agency for International Development          3        2       $13.9      5,805  CHEMONICS INTL          70.1%  HIGHLY CONCENTRATED (MONOPOLY)
+Contractor Entity     Federal Agency             Awards   Total Spend ($)   Split Awards   Risk Score  Prescriptive Enforcement Directive
+---------------------------------------------------------------------------------------------------------------------------------------------------
+MORE PREPARED         Peace Corps                     1         $241,500               1        71.2   🚨 TIER 1: FREEZE DISBURSEMENTS & SUBPOENA
+ARMEDIA               Intl Trade Commission           1         $225,978               1        69.9   🚨 TIER 1: FREEZE DISBURSEMENTS & SUBPOENA
+COMBRIDGE SRL         Department of Defense           4       $1,272,594               1        52.7   ⚠️ TIER 2: FORENSIC DESK AUDIT & SAMPLING
+SOFIE                 Department of Defense           2         $446,424               1        48.6   ⚠️ TIER 2: FORENSIC DESK AUDIT & SAMPLING
+L3HARRIS NEXGEN       Department of Defense           1         $245,241               1        46.5   ⚠️ TIER 2: FORENSIC DESK AUDIT & SAMPLING
+OPSOLUTIONS           Department of Defense           1         $240,000               1        46.1   ⚠️ TIER 2: FORENSIC DESK AUDIT & SAMPLING
+LOCKHEED MARTIN       Department of Defense          90     $451,450,400,000           0        43.6   ⚠️ TIER 2: FORENSIC DESK AUDIT & SAMPLING
+CHEMONICS INTL        USAID                           2       $9,714,132,000           0        43.0   ⚠️ TIER 2: FORENSIC DESK AUDIT & SAMPLING
+---------------------------------------------------------------------------------------------------------------------------------------------------
 ```
 
 ---
@@ -114,52 +154,53 @@ Agency for International Development          3        2       $13.9      5,805 
 
 | Component | Technology | Engineering Justification |
 | :--- | :--- | :--- |
-| **Engine / OLAP** | **DuckDB 2.0 (Embedded)** | High-throughput analytical processing. Computes aggregation matrices, string regex entity resolution, and quadratic HHI sums across millions in memory. |
-| **Data Source** | **USASpending.gov REST API** | The definitive open repository for US federal spending. 100% public, official, and authenticated by US Treasury standards. |
-| **Forensic Math** | **SciPy + Pure SQL Log10** | Calculates Chi-Square Goodness-of-Fit and Mean Absolute Deviation (MAD) directly against Benford theoretical vectors. |
-| **Data Quality** | **Pytest Regression Suite** | Rigorous unit test suite verifying mathematical bounds (HHI $0 \le x \le 10,000$, Benford $\sum P(d) = 1.0$). |
-| **Serving & BI** | **Streamlit + Plotly Dark** | Interactive investigative workspace displaying dual-axis Benford curves, threshold danger zone tables, and agency concentration bars. |
-| **CI/CD** | **GitHub Actions** | Automated continuous integration testing ingestion, models, and statistical integrity on every commit. |
+| **Engine / OLAP** | **DuckDB 1.0+ Columnar** | Ultra-fast local analytical SQL engine. Eliminates heavy Spark or Snowflake costs while executing complex string parsing, regex entity resolution, and window functions in sub-seconds. |
+| **Data Ingestion** | **Python 3 / Requests / PyArrow** | Multi-slice REST consumer with pagination, retry backoff, and idempotent ingestion from USASpending.gov. |
+| **Statistical Forensics** | **SciPy + DuckDB SQL** | Native implementations of Benford Log10 distributions, Chi-Square Goodness-of-Fit, and HHI market concentration formulas. |
+| **Serving & UI** | **Streamlit + Plotly Dark** | Interactive dual Benford curve comparisons, agency HHI bar charts, and an automated audit decision triage ledger. |
+| **Testing** | **Pytest** | Automated unit tests verifying Benford mathematical sums, HHI range constraints, and fraud risk score bounds. |
+| **CI/CD** | **GitHub Actions** | Automated integration tests executing on every commit. |
 
 ---
 
-## 🚀 Quickstart: Run in 60 Seconds
+## 🧪 Automated Regression & Data Quality Test Suite
 
-### 1. Clone the repository:
+Run the test suite with:
+```bash
+pytest tests/ -v
+```
+
+Execution output:
+```text
+tests/test_forensic_pipeline.py::test_bronze_contracts_contain_real_data PASSED [ 16%]
+tests/test_forensic_pipeline.py::test_silver_first_digit_integrity PASSED [ 33%]
+tests/test_forensic_pipeline.py::test_benford_theoretical_distribution PASSED [ 50%]
+tests/test_forensic_pipeline.py::test_hhi_monopoly_mathematical_bounds PASSED [ 66%]
+tests/test_forensic_pipeline.py::test_contract_splitting_threshold_bounds PASSED [ 83%]
+tests/test_forensic_pipeline.py::test_prescriptive_fraud_triage PASSED   [100%]
+============================== 6 passed in 1.14s ==============================
+```
+
+---
+
+## 🚀 Quickstart: Run Locally in 60 Seconds
+
+### 1. Clone the repository
 ```bash
 git clone https://github.com/Abbderahmenblk31/procurewatch-forensic-lakehouse.git
 cd procurewatch-forensic-lakehouse
 ```
 
-### 2. Install dependencies:
+### 2. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Run complete pipeline & launch dashboard:
+### 3. Run the complete pipeline & launch dashboard
 ```bash
 python run_pipeline.py
 ```
-*This command pulls real US federal contract awards, executes forensic Benford and HHI models in DuckDB, validates statistical tests, and launches the interactive forensic dashboard at `http://localhost:8501`!*
-
----
-
-## 🧪 Running Automated Tests
-
-To run the forensic test suite:
-```bash
-pytest tests/ -v
-```
-
-Output:
-```text
-tests/test_forensic_pipeline.py::test_bronze_contracts_contain_real_data PASSED       [ 20%]
-tests/test_forensic_pipeline.py::test_silver_first_digit_integrity PASSED            [ 40%]
-tests/test_forensic_pipeline.py::test_benford_theoretical_distribution PASSED        [ 60%]
-tests/test_forensic_pipeline.py::test_hhi_monopoly_mathematical_bounds PASSED        [ 80%]
-tests/test_forensic_pipeline.py::test_contract_splitting_threshold_bounds PASSED    [100%]
-============================== 5 passed in 0.51s ==============================
-```
+*This command executes live procurement ingestion from USASpending.gov, runs forensic transforms in DuckDB, passes all quality tests, and launches the dashboard at `http://localhost:8501`.*
 
 ---
 
@@ -169,24 +210,24 @@ tests/test_forensic_pipeline.py::test_contract_splitting_threshold_bounds PASSED
 procurewatch-forensic-lakehouse/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml                        # Automated GitHub Actions CI workflow
+│       └── ci.yml                    # Automated GitHub Actions CI workflow
 ├── data/
 │   └── lakehouse/
-│       └── procurement_lakehouse.duckdb  # Embedded DuckDB database
+│       └── procurement_lakehouse.duckdb # Embedded DuckDB database with forensic marts
 ├── ingest_engine/
-│   └── ingest_contracts.py               # Ingestion of USASpending.gov federal contracts
+│   └── ingest_contracts.py           # Real-time USASpending.gov API ingestion
 ├── models/
-│   └── forensic_analysis.py              # Benford's Law, Contract Splitting, and HHI models
+│   └── forensic_analysis.py          # Benford's Law, Contract Splitting, HHI & prescriptive triage
 ├── dashboard/
-│   └── app.py                            # Streamlit + Plotly interactive forensic app
+│   └── app.py                        # Streamlit + Plotly dark interactive intelligence dashboard
 ├── tests/
-│   └── test_forensic_pipeline.py         # Automated data quality & mathematical tests
-├── requirements.txt                      # Python dependencies
-├── run_pipeline.py                       # Master single-command pipeline orchestrator
-└── README.md                             # Project documentation and forensic engineering case study
+│   └── test_forensic_pipeline.py     # Automated data quality & mathematical consistency tests
+├── requirements.txt                  # Python dependencies
+├── run_pipeline.py                   # Master single-command pipeline orchestrator
+└── README.md                         # Project documentation and forensic audit case study
 ```
 
 ---
 
 ## 📜 License
-MIT License. Open source forensic research and anti-fraud engineering.
+MIT License. Open source research and engineering.
