@@ -63,5 +63,20 @@ def test_contract_splitting_threshold_bounds(db_conn):
     """).fetchone()[0]
     assert exceeded == 0, f"Found {exceeded} split contracts exceeding statutory limit!"
 
+def test_prescriptive_fraud_triage(db_conn):
+    """Verifies that composite fraud risk scores are between 0 and 100 and mapped to valid triage actions."""
+    df = db_conn.execute("SELECT * FROM mart_prescriptive_fraud_triage").df()
+    assert len(df) > 0, "Prescriptive fraud triage mart is empty!"
+    assert (df["composite_fraud_risk_score"] >= 0.0).all(), "Negative fraud risk score found!"
+    assert (df["composite_fraud_risk_score"] <= 100.0).all(), "Fraud risk score exceeded 100!"
+    valid_actions = {
+        "🚨 TIER 1: FREEZE DISBURSEMENTS & SUBPOENA",
+        "⚠️ TIER 2: FORENSIC DESK AUDIT & CONTRACT SAMPLING",
+        "🔎 TIER 3: ENHANCED CONTINUOUS MONITORING",
+        "✅ TIER 4: ROUTINE RECONCILIATION"
+    }
+    actual_actions = set(df["prescriptive_audit_action"].unique())
+    assert actual_actions.issubset(valid_actions), f"Invalid actions: {actual_actions - valid_actions}"
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

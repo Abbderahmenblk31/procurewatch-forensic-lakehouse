@@ -40,6 +40,11 @@ def load_forensic_data():
     hhi_df = con.execute("SELECT * FROM mart_agency_vendor_concentration ORDER BY total_spend_usd DESC;").df()
     splitting_df = con.execute("SELECT * FROM mart_contract_splitting_risk ORDER BY total_split_value_usd DESC;").df()
     
+    try:
+        triage_df = con.execute("SELECT * FROM mart_prescriptive_fraud_triage ORDER BY composite_fraud_risk_score DESC;").df()
+    except Exception:
+        triage_df = pd.DataFrame()
+    
     summary_stats = con.execute("""
         SELECT 
             COUNT(*) as total_contracts,
@@ -51,7 +56,7 @@ def load_forensic_data():
     """).fetchone()
     
     con.close()
-    return benford_df, hhi_df, splitting_df, summary_stats
+    return benford_df, hhi_df, splitting_df, summary_stats, triage_df
 
 # Title & Executive Header
 st.markdown("""
@@ -72,7 +77,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 try:
-    benford_df, hhi_df, splitting_df, summary = load_forensic_data()
+    benford_df, hhi_df, splitting_df, summary, triage_df = load_forensic_data()
 except Exception as e:
     st.error(f"Failed to connect to Forensic Lakehouse: {e}")
     st.stop()
@@ -115,10 +120,11 @@ with col4:
 st.markdown("---")
 
 # Main Investigative Tabs
-tab1, tab2, tab3 = st.tabs([
+tab1, tab2, tab3, tab4 = st.tabs([
     "📐 Benford's Law First-Digit Audit",
     "✂️ Contract Splitting & Threshold Smurfing",
-    "🏢 Agency Vendor Concentration (HHI Index)"
+    "🏢 Agency Vendor Concentration (HHI Index)",
+    "🤖 Prescriptive Fraud Triage & Enforcement"
 ])
 
 with tab1:
@@ -240,6 +246,74 @@ with tab3:
         }),
         use_container_width=True
     )
+
+with tab4:
+    st.subheader("🤖 Prescriptive Decision Intelligence: Fraud Triage & Enforcement Engine")
+    st.caption("Automated legal & audit enforcement directives powered by multi-factor forensic scoring (Threshold Evasion + Agency Capture + Exposure).")
+    
+    if not triage_df.empty:
+        tier1_count = int((triage_df["prescriptive_audit_action"].str.contains("TIER 1")).sum())
+        tier2_count = int((triage_df["prescriptive_audit_action"].str.contains("TIER 2")).sum())
+        tier3_count = int((triage_df["prescriptive_audit_action"].str.contains("TIER 3")).sum())
+        high_risk_spend = float(triage_df[triage_df["composite_fraud_risk_score"] >= 40]["total_awarded_usd"].sum())
+        
+        tc1, tc2, tc3, tc4 = st.columns(4)
+        tc1.metric("🚨 Tier 1: Freeze & Subpoena", f"{tier1_count} Vendors", delta="Critical Immediate Action", delta_color="inverse")
+        tc2.metric("⚠️ Tier 2: Forensic Desk Audit", f"{tier2_count} Vendors", delta="Sampling Required", delta_color="inverse")
+        tc3.metric("🔎 Tier 3: Enhanced Monitoring", f"{tier3_count} Vendors", delta="Trigger Next 5 Awards")
+        tc4.metric("Capital at Elevated Risk", f"${high_risk_spend/1e6:,.1f}M USD", delta="Screened Portfolio")
+        
+        # Filter by tier
+        tier_choice = st.radio("Filter Triage Action Status:", ["All Actions", "🚨 Tier 1 (Freeze)", "⚠️ Tier 2 (Desk Audit)", "🔎 Tier 3 (Monitor)"], horizontal=True)
+        filtered_triage = triage_df.copy()
+        if tier_choice == "🚨 Tier 1 (Freeze)":
+            filtered_triage = filtered_triage[filtered_triage["prescriptive_audit_action"].str.contains("TIER 1")]
+        elif tier_choice == "⚠️ Tier 2 (Desk Audit)":
+            filtered_triage = filtered_triage[filtered_triage["prescriptive_audit_action"].str.contains("TIER 2")]
+        elif tier_choice == "🔎 Tier 3 (Monitor)":
+            filtered_triage = filtered_triage[filtered_triage["prescriptive_audit_action"].str.contains("TIER 3")]
+            
+        st.markdown("### 📋 Prescriptive Audit & Enforcement Action Matrix")
+        st.dataframe(
+            filtered_triage[[
+                "normalized_vendor", "awarding_agency", "total_awards", "total_awarded_usd",
+                "threshold_cluster_count", "agency_share_pct", "composite_fraud_risk_score",
+                "prescriptive_audit_action", "prescriptive_decision_rationale"
+            ]].rename(columns={
+                "normalized_vendor": "Contractor Entity",
+                "awarding_agency": "Federal Agency",
+                "total_awards": "Awards",
+                "total_awarded_usd": "Total Spend ($ USD)",
+                "threshold_cluster_count": "Split Awards ($200k-$250k)",
+                "agency_share_pct": "Agency Share (%)",
+                "composite_fraud_risk_score": "Risk Score (0-100)",
+                "prescriptive_audit_action": "Prescriptive Enforcement Action",
+                "prescriptive_decision_rationale": "Legal & Forensic Decision Rationale"
+            }),
+            use_container_width=True
+        )
+        
+        # Risk score visualization
+        st.markdown("### 📊 Top 10 High-Risk Contractors by Composite Forensic Score")
+        top_risk = triage_df.head(10)
+        fig_risk = px.bar(
+            top_risk,
+            x="normalized_vendor",
+            y="composite_fraud_risk_score",
+            color="prescriptive_audit_action",
+            color_discrete_map={
+                "🚨 TIER 1: FREEZE DISBURSEMENTS & SUBPOENA": "#ef4444",
+                "⚠️ TIER 2: FORENSIC DESK AUDIT & CONTRACT SAMPLING": "#f59e0b",
+                "🔎 TIER 3: ENHANCED CONTINUOUS MONITORING": "#3b82f6",
+                "✅ TIER 4: ROUTINE RECONCILIATION": "#10b981"
+            },
+            title="Composite Fraud Risk Score (0-100) vs Recommended Enforcement Action",
+            labels={"normalized_vendor": "Contractor", "composite_fraud_risk_score": "Composite Risk Score (0-100)"}
+        )
+        fig_risk.update_layout(template="plotly_dark", height=420)
+        st.plotly_chart(fig_risk, use_container_width=True)
+    else:
+        st.info("Prescriptive fraud triage engine initializing. Please click 'Rerun USASpending Live Forensic Ingestion'.")
 
 st.sidebar.title("🕵️‍♂️ Forensic Controls")
 st.sidebar.info(f"""

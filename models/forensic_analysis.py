@@ -207,6 +207,74 @@ def run_forensic_pipeline():
         ORDER BY a.total_agency_spend_usd DESC;
     """)
     
+    # 5. Gold Mart 4: Prescriptive Forensic Audit & Triage Action Engine
+    print("[5/5] Generating Prescriptive Forensic Audit & Triage Action Engine...")
+    con.execute("""
+        CREATE OR REPLACE TABLE mart_prescriptive_fraud_triage AS
+        WITH agency_totals AS (
+            SELECT 
+                awarding_agency,
+                SUM(award_amount) as agency_total_spend
+            FROM silver_procurement_contracts
+            GROUP BY awarding_agency
+        ),
+        vendor_metrics AS (
+            SELECT 
+                c.normalized_vendor,
+                c.awarding_agency,
+                COUNT(*) as total_awards,
+                ROUND(SUM(c.award_amount), 2) as total_awarded_usd,
+                ROUND(AVG(c.award_amount), 2) as avg_award_usd,
+                COUNT(CASE WHEN c.award_amount BETWEEN 200000 AND 249999.99 OR c.award_amount BETWEEN 8000 AND 9999.99 THEN 1 END) as threshold_cluster_count,
+                ROUND(SUM(CASE WHEN c.award_amount BETWEEN 200000 AND 249999.99 OR c.award_amount BETWEEN 8000 AND 9999.99 THEN c.award_amount ELSE 0 END), 2) as threshold_cluster_value_usd,
+                ROUND(SUM(c.award_amount) * 100.0 / a.agency_total_spend, 2) as agency_share_pct
+            FROM silver_procurement_contracts c
+            JOIN agency_totals a ON c.awarding_agency = a.awarding_agency
+            GROUP BY c.normalized_vendor, c.awarding_agency, a.agency_total_spend
+        ),
+        scored AS (
+            SELECT 
+                v.*,
+                ROUND(
+                    LEAST(45.0, (v.threshold_cluster_count * 25.0) + (v.threshold_cluster_value_usd / 250000.0 * 20.0)) +
+                    LEAST(25.0, (v.agency_share_pct * 0.5)) +
+                    LEAST(15.0, (v.total_awarded_usd / 10000000.0 * 15.0)) +
+                    LEAST(15.0, (v.total_awards * 1.5)),
+                    1
+                ) as composite_fraud_risk_score
+            FROM vendor_metrics v
+        )
+        SELECT 
+            normalized_vendor,
+            awarding_agency,
+            total_awards,
+            total_awarded_usd,
+            avg_award_usd,
+            threshold_cluster_count,
+            threshold_cluster_value_usd,
+            agency_share_pct,
+            composite_fraud_risk_score,
+            CASE 
+                WHEN composite_fraud_risk_score >= 60 THEN '🚨 TIER 1: FREEZE DISBURSEMENTS & SUBPOENA'
+                WHEN composite_fraud_risk_score >= 40 THEN '⚠️ TIER 2: FORENSIC DESK AUDIT & CONTRACT SAMPLING'
+                WHEN composite_fraud_risk_score >= 20 THEN '🔎 TIER 3: ENHANCED CONTINUOUS MONITORING'
+                ELSE '✅ TIER 4: ROUTINE RECONCILIATION'
+            END as prescriptive_audit_action,
+            CASE 
+                WHEN composite_fraud_risk_score >= 60 THEN 
+                    CONCAT('Critical threshold evasion detected (', CAST(threshold_cluster_count AS VARCHAR), ' awards clustered in $200k-$250k band) with high agency capture (', CAST(agency_share_pct AS VARCHAR), '%). Immediate disbursement hold and OIG subpoena mandated.')
+                WHEN composite_fraud_risk_score >= 40 THEN 
+                    CONCAT('Elevated forensic risk. High exposure ($', CAST(total_awarded_usd AS VARCHAR), ' USD) or threshold boundary award. Initiate unannounced contract sampling.')
+                WHEN composite_fraud_risk_score >= 20 THEN 
+                    'Moderate profile. Flag next 5 purchase orders for automated competitive bid verification.'
+                ELSE 
+                    'Within normal statutory disbursement distribution. Maintain standard quarterly audit.'
+            END as prescriptive_decision_rationale
+        FROM scored
+        ORDER BY composite_fraud_risk_score DESC, total_awarded_usd DESC;
+    """)
+    print("   -> Prescriptive fraud triage engine built.")
+    
     print("\n" + "="*80)
     print("📊 BENFORD'S LAW FIRST-DIGIT DISTRIBUTION AUDIT TABLE")
     print("="*80)
